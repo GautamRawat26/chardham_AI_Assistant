@@ -68,11 +68,10 @@ def extract_weather_data(weather_json):
 def extract_daily_forecast(forecast_json, days=7):
     forecast_days = []
 
-    if "timelines" in forecast_json:
-        daily_data = forecast_json["timelines"].get("daily", [])
-    else:
-        daily_data = []
-        print("Invalid API response:", forecast_json)
+    if not forecast_json or "timelines" not in forecast_json:
+        raise ValueError("Weather API failed or returned unexpected format")
+
+    daily_data = forecast_json["timelines"].get("daily", [])
 
     for day in daily_data[:days]:
         values = day["values"]
