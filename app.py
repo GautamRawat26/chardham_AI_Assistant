@@ -380,6 +380,7 @@ if st.button("🚀 Generate Prediction", use_container_width=True):
 
     try:
         forecast_json = get_weather_forecast(shrine)
+        st.write(forecast_json)
 
         forecast_days = extract_daily_forecast(
             forecast_json,

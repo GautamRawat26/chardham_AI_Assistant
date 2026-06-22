@@ -49,7 +49,9 @@ def get_weather_forecast(shrine):
     }
 
     response = requests.get(url, params=params)
-    return response.json()
+    forecast_json = response.json()
+    print("RAW WEATHER RESPONSE:", forecast_json)
+    return forecast_json
 
 
 def extract_weather_data(weather_json):
@@ -65,25 +67,20 @@ def extract_weather_data(weather_json):
     }
 
 
-def extract_daily_forecast(forecast_json, days=7):
-    forecast_days = []
-
-    if not forecast_json or "timelines" not in forecast_json:
-        raise ValueError("Weather API failed or returned unexpected format")
-
-    daily_data = forecast_json["timelines"].get("daily", [])
-
-    for day in daily_data[:days]:
-        values = day["values"]
-
-        forecast_days.append({
-            "date": day["time"][:10],
-            "temperature": values.get("temperatureAvg", 0),
-            "humidity": values.get("humidityAvg", 0),
-            "wind_speed": values.get("windSpeedAvg", 0),
-            "precipitation_probability": values.get("precipitationProbabilityAvg", 0),
-            "weather_code": values.get("weatherCodeMax", 0),
-            "visibility": values.get("visibilityAvg", 10)
-        })
-
-    return forecast_days
+def extract_daily_forecast(forecast_json, days):
+    try:
+        if not forecast_json:
+            return []
+        # safe navigation
+        timelines = forecast_json.get("timelines")
+        if not timelines:
+            print("Missing timelines key:", forecast_json)
+            return []
+        daily_data = timelines.get("daily", [])
+        if not daily_data:
+            print("No daily data found:", forecast_json)
+            return []
+        return daily_data[:days]
+    except Exception as e:
+        print("Weather parsing error:", e)
+        return []
